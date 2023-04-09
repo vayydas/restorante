@@ -49,22 +49,24 @@
 
 
 import random
-import datetime
+from datetime import time
 from typing import List
+
+# import projekto_duomenys
 
 
 class Project:
     def __init__(
-        self, stalai_1: int, stalai_2: int, stalai_4: int, laikas: datetime
+        self, stalai_1: int, stalai_2: int, stalai_4: int, laikas: time
     ) -> None:
         self.stalai_1: int = stalai_1
         self.stalai_2: int = stalai_2
         self.stalai_4: int = stalai_4
-        self.laikas: datetime = laikas
+        self.laikas: time = laikas
 
     def get_laisvi_stalai(self) -> str:
-        t: datetime = self.laikas
-        if 2200 <= t <= 2400 or 0000 <= t <= 800:
+        t: time = self.laikas
+        if time(22, 1) <= t <= time(23, 59) or time(0, 0) <= t <= time(7, 59):
             return "Kavine uzdaryta"
         else:
             laisvi_stalai_1: int = random.randint(1, self.stalai_1)
@@ -74,29 +76,53 @@ class Project:
 
 
 class Reserv(Project):
-    def __init__(self, rezervuotas_stalas: bool, name: str, surname: str) -> None:
+    def __init__(
+        self, rezervuotas_stalas: bool, name: str, surname: str, laikas: time
+    ) -> None:
         self.rezervuotas_stalas: bool = rezervuotas_stalas
         self.name: str = name
         self.surname: str = surname
+        self.laikas: time = laikas
 
     def get_rezervuotas_stalas(self) -> str:
-        if self.rezervuotas_stalas == True:
+        t: time = self.laikas
+        if time(22, 1) <= t <= time(23, 59) or time(0, 0) <= t <= time(7, 59):
+            return "Prisijunkite kavines darbo laiku"
+        elif self.rezervuotas_stalas == True:
             return f"Prasome pasakyti savo varda ir pavarde"
 
         elif self.rezervuotas_stalas == False:
-            return "Prasome palaukti"
+            if "pageidaujate uzeiti" == True:
+                "Prasome  praeiti, arba rezervuokite staliuka"
 
 
-class Person(Reserv):
-    def __init__(self, name: str, surname: str) -> None:
+class Person(Reserv, Project):
+    def __init__(self, name: str, surname: str, num_per: int) -> None:
         self.name: str = name
         self.surname: str = surname
+        self.num_per: int = num_per
+
+    def get_name(self) -> str:
+        if self.num_per == 1:
+            # liko_laisvi_stalai_1 = laisvi_stalai_1 - 1
+            rezerv_laik: int = random.randint(8, 21)
+            return f"{self.name}   {self.surname} jus rezervavote vienvieti stala    {rezerv_laik} valandai"
+
+        elif self.num_per == 2:
+            # liko_laisvi_stalai_2 = laisvi_stalai_2 - 1
+            rezerv_laik: int = random.randint(8, 21)
+            return f"{self.name}   {self.surname} jus rezervavote dvivieti stala  {rezerv_laik} valandai"
+
+        elif self.num_per >= 3:
+            # liko_laisvi_stalai_4 = laisvi_stalai_4 - 1
+            rezerv_laik: int = random.randint(8, 21)
+            return f"{self.name}   {self.surname} jus rezervavote seimynini  stala   {rezerv_laik} valandai"
+        # return f"liko laisvu stalu :  {liko_laisvi_stalai_1}, {liko_laisvi_stalai_2}, {liko_laisvi_stalai_4}"
 
 
 class Laikas(Project):
-    def __init__(self) -> None:
-        self.laikas: datetime = laikas
-        super().__init__(laikas=laikas)
+    def __init__(self, laikas: time) -> None:
+        self.laikas: time = laikas
 
     PUSRYCIAI: dict[str, set[int]] = {
         "gerimai": {1, 2, 3, 4, 5, 6, 7},
@@ -124,30 +150,45 @@ class Laikas(Project):
     }
     ALK_GERIMAI = {"Alkoholiniai gerimai": {541, 542, 543, 544, 545, 546, 547}}
 
-    def get_laikas(self) -> str:
-        
-        t: datetime = self.laikas
-        if 800 <= t <= 1100:
+    def get_menu(self) -> str:
+        t: time = self.laikas
+
+        if time(8, 0) <= t <= time(11, 0):
             return f"Dabar yra pusryciu metas. Prasome pasirinkti is {self.PUSRYCIAI} meniu :"
-        elif 1100 <= t <= 1600:
+        elif time(11, 1) <= t <= time(16, 0):
             return f"Dabar yra pietu metas. Prasome pasirinkti is {self.PIETUS} ir {self.ALK_GERIMAI}"
-        elif 1600 <= t <= 1900:
+        elif time(16, 1) <= t <= time(19, 0):
             return f"Dabar yra pavakariu metas. Prasome pasirinkti is {self.PAVAKARIAI} ir {self.ALK_GERIMAI}"
-        elif 1900 <= t <= 2200:
+        elif time(19, 1) <= t <= time(21, 30):
             return f"Dabar yra vakarienes metas. Prasome pasirinkti is {self.VAKARIENE} ir {self.ALK_GERIMAI}"
+        elif time(21, 31) <= t <= time(22, 0):
+            return f"Siuo metu karstu patiekalu nera. Prasome pasirinkti is {self.ALK_GERIMAI} gerimai"
         else:
             return "Kavine uzdaryta"
 
 
-# lk = Laikas(805)
-rez = Reserv(True, "peter", "piotr")
-p = Project(5, 5, 5, 805)
-per = Person
-per = {
-    "Peter",
-    "Parker",
-}
+lk = Laikas
+name = "Pavyzdys"
+surname = "Pavyzdinis"
+num_per: int = 4
+nam = name
+sur = surname
+st: int = num_per
+
+
+per = Person(nam, sur, st)
+t = time(12, 30)
+lk = Laikas(t)
+rez = Reserv(True, nam, sur, t)
+p = Project(5, 5, 5, t)
+
+# per = {
+#     "Peter",
+#     "Parker",
+# }
 
 print(rez.get_rezervuotas_stalas())
+
+print(per.get_name())
 print(p.get_laisvi_stalai())
-#print(get_laikas())
+print(lk.get_menu())
